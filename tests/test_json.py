@@ -9,7 +9,7 @@ from hypothesis import example, given, strategies
 
 from pyrsec import Parsec
 
-JSON = Union[bool, int, None, str, List["JSON"], Dict[str, "JSON"]]  # type: ignore
+JSON = Union[bool, int, None, str, List["JSON"], Dict[str, "JSON"]]
 
 strategies.register_type_strategy(
     str,
