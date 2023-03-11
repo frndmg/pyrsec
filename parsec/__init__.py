@@ -41,7 +41,7 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
     def from_func(cls, parser: ParsecBasic[_T]) -> Self:
         return cls(parser)
 
-    def __or__(self, other: ParsecBasic[_R]) -> Parsec[_T | _R]:
+    def __or__(self: Parsec[_T], other: ParsecBasic[_R]) -> Parsec[_T | _R]:
         def _either(s: str) -> tuple[_T | _R, str] | None:
             return self(s) or other(s)
 
