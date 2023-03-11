@@ -109,3 +109,12 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
     def __lshift__(self, other: Parsec[Any]) -> Parsec[_T]:
         return (self & other).map(lambda x: x[0])
+
+    @classmethod
+    def from_string(cls, x: str) -> Parsec[str]:
+        def _match(s: str) -> tuple[str, str] | None:
+            if s.startswith(x):
+                return x, s[len(x) :]
+            return None
+
+        return Parsec.from_func(_match)
