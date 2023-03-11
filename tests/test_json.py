@@ -83,5 +83,12 @@ def parser() -> Parsec[JSON]:
 @example(" [] ")
 @example(" {} ")
 @example(' "foo" ')
+@example(
+    """
+{
+    "multiline": true
+}
+"""
+)
 def test_json(parser: Parsec[JSON], value: str) -> None:
     assert parser(value) == (json.loads(value), "")
