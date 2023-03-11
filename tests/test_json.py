@@ -9,6 +9,12 @@ from parsec import Parsec
 
 JSON = Union[bool, int, None, str, List["JSON"]]  # type: ignore
 
+strategies.register_type_strategy(
+    str,
+    strategies.text(
+        alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    ),
+)
 
 strategies.register_type_strategy(
     # ForwardRef can not be used here
@@ -39,14 +45,6 @@ def test_json_single(parser: Parsec[JSON]) -> None:
     assert parser('"some string"') == ("some string", "")
     assert parser('"some bad string') is None
     assert parser("true with more") == (True, " with more")
-
-
-strategies.register_type_strategy(
-    str,
-    strategies.text(
-        alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    ),
-)
 
 
 @given(value=strategies.from_type(JSON))
