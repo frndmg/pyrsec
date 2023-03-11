@@ -7,7 +7,7 @@ from typing import Dict, ForwardRef, List, Union
 import pytest
 from hypothesis import example, given, strategies
 
-from parsec import Parsec
+from pyrsec import Parsec
 
 JSON = Union[bool, int, None, str, List["JSON"], Dict[str, "JSON"]]  # type: ignore
 
