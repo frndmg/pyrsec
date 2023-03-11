@@ -27,7 +27,7 @@ strategies.register_type_strategy(
 json_strategy = strategies.from_type(JSON)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session")  # type: ignore
 def parser() -> Parsec[JSON]:
     json_parser: Parsec[JSON]
 
