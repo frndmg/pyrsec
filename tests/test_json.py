@@ -39,7 +39,7 @@ def parser() -> Parsec[JSON]:
     quote = Parsec.from_re(re.compile('"')).ignore()
     string = quote >> Parsec.from_re(re.compile(r"[^\"]*")) << quote
 
-    space = Parsec.from_re(re.compile(r"\s*")).ignore()
+    space = Parsec.from_re(re.compile(r"\s+")).ignore()
     comma = Parsec.from_string(",").ignore()
 
     opened_square_bracket = Parsec.from_string("[")
