@@ -154,6 +154,13 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
         return Parsec.from_func(_many)
 
+    def else_(self: Parsec[_T], f: Callable[[], _R]) -> Parsec[_T | _R]:
+        return self | Parsec.constant(f)
+
+    @staticmethod
+    def constant(f: Callable[[], _T]) -> Parsec[_T]:
+        return Parsec.from_func(lambda s: (f(), s))
+
     @staticmethod
     def sep_by(sep: Parsec[Any], p: Parsec[_T]) -> Parsec[List[_T]]:
         return (p << sep).many() | p.map(lambda x: [x])
