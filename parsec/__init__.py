@@ -93,8 +93,8 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
         return Parsec.from_func(_map)
 
-    @classmethod
-    def from_re(cls, r: re.Pattern[str]) -> Parsec[str]:
+    @staticmethod
+    def from_re(r: re.Pattern[str]) -> Parsec[str]:
         def _match(s: str) -> tuple[str, str] | None:
             m = r.match(s)
             if m is None:
@@ -110,8 +110,8 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
     def __lshift__(self, other: Parsec[Any]) -> Parsec[_T]:
         return (self & other).map(lambda x: x[0])
 
-    @classmethod
-    def from_string(cls, x: str) -> Parsec[str]:
+    @staticmethod
+    def from_string(x: str) -> Parsec[str]:
         def _match(s: str) -> tuple[str, str] | None:
             if s.startswith(x):
                 return x, s[len(x) :]
@@ -119,8 +119,8 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
         return Parsec.from_func(_match)
 
-    @classmethod
-    def from_deferred(cls, f: Callable[[], Parsec[_R]]) -> Parsec[_R]:
+    @staticmethod
+    def from_deferred(f: Callable[[], Parsec[_R]]) -> Parsec[_R]:
         def _deferred(s: str) -> tuple[_R, str] | None:
             return f()(s)
 
