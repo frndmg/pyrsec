@@ -34,10 +34,13 @@ def parser() -> Parsec[JSON]:
     true = Parsec.from_re(re.compile(r"true")).map(lambda _: True)
     false = Parsec.from_re(re.compile(r"false")).map(lambda _: False)
     number = Parsec.from_re(re.compile(r"-?\d+")).map(int)
-    null = Parsec.from_re(re.compile(r"null")).map(lambda _: None)
+    null = Parsec.from_re(re.compile(r"null")).ignore()
 
-    quote = Parsec.from_re(re.compile('"')).map(lambda _: None)
+    quote = Parsec.from_re(re.compile('"')).ignore()
     string = quote >> Parsec.from_re(re.compile(r"[^\"]*")) << quote
+
+    space = Parsec.from_re(re.compile(r"\s*")).ignore()
+    comma = Parsec.from_string(",").ignore()
 
     opened_square_bracket = Parsec.from_string("[")
     closed_square_bracket = Parsec.from_string("]")

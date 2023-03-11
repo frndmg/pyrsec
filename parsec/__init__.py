@@ -125,3 +125,7 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
             return f()(s)
 
         return Parsec.from_func(_deferred)
+
+    def ignore(self) -> Parsec[None]:
+        return self.map(lambda _: None)
+
