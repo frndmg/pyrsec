@@ -11,8 +11,6 @@ from typing import (
     Tuple,
     TypeVar,
     TypeVarTuple,
-    cast,
-    overload,
 )
 
 T = TypeVar("T", covariant=True)
@@ -47,26 +45,10 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
         return Parsec.from_func(_either)
 
-    @overload
-    def __and__(
-        self: Parsec[Tuple[*_Ts]],
-        other: ParsecBasic[_R],
-    ) -> Parsec[Tuple[*_Ts, _R]]:
-        ...
-
-    @overload
-    def __and__(
-        self: Parsec[_T],
-        other: ParsecBasic[_R],
-    ) -> Parsec[Tuple[_T, _R]]:
-        ...
-
-    def __and__(
-        self: Parsec[Tuple[*_Ts]] | Parsec[_T], other: ParsecBasic[_R]
-    ) -> Parsec[Tuple[*_Ts, _R]] | Parsec[Tuple[_T, _R]]:
+    def __and__(self: Parsec[_T], other: ParsecBasic[_R]) -> Parsec[Tuple[_T, _R]]:
         def _concat(
             s: str,
-        ) -> Tuple[Tuple[*_Ts, _R], str] | Tuple[Tuple[_T, _R], str] | None:
+        ) -> Tuple[Tuple[_T, _R], str] | None:
             r1 = self(s)
             if r1 is None:
                 return None
@@ -77,9 +59,6 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
                 return None
             a2, s2 = r2
 
-            if isinstance(a1, tuple):
-                a1 = cast(Tuple[*_Ts], a1)
-                return (*a1, a2), s2
             return (a1, a2), s2
 
         return Parsec.from_func(_concat)
