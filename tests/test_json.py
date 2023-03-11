@@ -6,7 +6,8 @@ from hypothesis import given, strategies
 
 from parsec import Parsec
 
-JSON = bool | int | None | str
+JSON = Union[bool, int, None, str, List["JSON"]]  # type: ignore
+
 
 
 @pytest.fixture(scope="session")
