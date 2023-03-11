@@ -32,6 +32,14 @@ def test_json_single(parser: Parsec[JSON]) -> None:
     assert parser("true with more") == (True, " with more")
 
 
+strategies.register_type_strategy(
+    str,
+    strategies.text(
+        alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    ),
+)
+
+
 @given(value=strategies.from_type(JSON))
 def test_json(parser: Parsec[JSON], value: JSON) -> None:
     assert parser(json.dumps(value)) == (value, "")
