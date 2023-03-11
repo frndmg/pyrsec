@@ -118,3 +118,10 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
             return None
 
         return Parsec.from_func(_match)
+
+    @classmethod
+    def from_deferred(cls, f: Callable[[], Parsec[_R]]) -> Parsec[_R]:
+        def _deferred(s: str) -> tuple[_R, str] | None:
+            return f()(s)
+
+        return Parsec.from_func(_deferred)
