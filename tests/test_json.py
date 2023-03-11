@@ -29,7 +29,10 @@ json_strategy = strategies.from_type(JSON)
 
 @pytest.fixture(scope="session")  # type: ignore
 def parser() -> Parsec[JSON]:
-    json_parser: Parsec[JSON]
+    json_: Parsec[JSON]
+
+    # Use this if you need to define recursive parsers like `list_`
+    deferred_json_ = Parsec.from_deferred(lambda: json_)
 
     true = Parsec.from_re(re.compile(r"true")).map(lambda _: True)
     false = Parsec.from_re(re.compile(r"false")).map(lambda _: False)
@@ -48,12 +51,10 @@ def parser() -> Parsec[JSON]:
 
     list_ = (
         opened_square_bracket
-        >> space
         >> Parsec.sep_by(
-            space >> comma >> space,
-            Parsec.from_deferred(lambda: json_parser),
+            comma,
+            deferred_json_,
         )
-        << space
         << closed_square_bracket
     )
 
@@ -62,30 +63,25 @@ def parser() -> Parsec[JSON]:
 
     colon = Parsec.from_string(":").ignore()
 
-    pair = string & (
-        space >> colon >> space >> Parsec.from_deferred(lambda: json_parser)
-    )
+    pair = ((space >> string << space) << colon) & deferred_json_
 
     dict_ = (
         opened_bracket
-        >> space
         >> Parsec.sep_by(
-            space >> comma >> space,
+            comma,
             pair,
         ).map(lambda xs: dict(xs))
-        << space
         << closed_bracket
     )
 
-    json_parser = (
-        space >> (true | false | number | null | string | list_ | dict_) << space
-    )
+    json_ = space >> (true | false | number | null | string | list_ | dict_) << space
 
-    return json_parser
+    return json_
 
 
 @given(value=strategies.from_type(JSON).map(json.dumps))
 @example(" [] ")
 @example(" {} ")
+@example(' "foo" ')
 def test_json(parser: Parsec[JSON], value: str) -> None:
     assert parser(value) == (json.loads(value), "")
