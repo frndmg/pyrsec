@@ -165,13 +165,21 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         return self.map(lambda _: None)
 
     def maybe(self) -> Parsec[_T | None]:
-        def _maybe(s: str) -> tuple[_T | None, str]:
-            r = self(s)
-            if r is None:
-                return None, s
-            return r
+        """Returns a new `Parsec` instance that will recover in case the current
+        instance fails. It's current implementation is equivalent to
+        `self.else_(lambda: None)`.
 
-        return Parsec.from_func(_maybe)
+        Example:
+        ```python
+        >>> one = Parsec.from_string("1").map(int).maybe()
+        >>> one("1")
+        (1, '')
+        >>> one("2")
+        (None, '2')
+
+        ```
+        """
+        return self.else_(lambda: None)
 
     def many(self) -> Parsec[List[_T]]:
         def _many(s: str) -> tuple[List[_T], str] | None:
