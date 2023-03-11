@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import json
 import re
-from typing import ForwardRef, List, Union
+from typing import ForwardRef, List, Mapping, Union
 
 import pytest
 from hypothesis import given, strategies
 
 from parsec import Parsec
 
-JSON = Union[bool, int, None, str, List["JSON"]]  # type: ignore
+JSON = Union[bool, int, None, str, List["JSON"], Mapping[str, "JSON"]]  # type: ignore
 
 strategies.register_type_strategy(
     str,
