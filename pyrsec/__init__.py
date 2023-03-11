@@ -5,6 +5,8 @@ from typing import Any, Callable, Generic, List, Protocol, Self, Tuple, TypeVar
 
 T = TypeVar("T", covariant=True)
 
+__version__ = "0.1.0"
+
 
 class ParsecBasic(Protocol[T]):
     """ParsecBasic is just the basic callable interface"""
