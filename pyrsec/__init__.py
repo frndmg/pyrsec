@@ -1,17 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import (
-    Any,
-    Callable,
-    Generic,
-    List,
-    Protocol,
-    Self,
-    Tuple,
-    TypeVar,
-    TypeVarTuple,
-)
+from typing import Any, Callable, Generic, List, Protocol, Self, Tuple, TypeVar
 
 T = TypeVar("T", covariant=True)
 
@@ -25,7 +15,6 @@ class ParsecBasic(Protocol[T]):
 
 _T = TypeVar("_T")
 _R = TypeVar("_R")
-_Ts = TypeVarTuple("_Ts")
 
 
 class Parsec(Generic[_T], ParsecBasic[_T]):
