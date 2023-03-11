@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import json
 import re
-from typing import ForwardRef, List, Mapping, Union
+from typing import Dict, ForwardRef, List, Union
 
 import pytest
 from hypothesis import given, strategies
 
 from parsec import Parsec
 
-JSON = Union[bool, int, None, str, List["JSON"], Mapping[str, "JSON"]]  # type: ignore
+JSON = Union[bool, int, None, str, List["JSON"], Dict[str, "JSON"]]  # type: ignore
 
 strategies.register_type_strategy(
     str,
@@ -40,7 +40,7 @@ def parser() -> Parsec[JSON]:
     string = quote >> Parsec.from_re(re.compile(r"[^\"]*")) << quote
 
     # Space is always optional on json
-    space = Parsec.from_re(re.compile(r"\s+")).maybe()
+    space = Parsec.from_re(re.compile(r"\s*")).ignore()
     comma = Parsec.from_string(",").ignore()
 
     opened_square_bracket = Parsec.from_string("[")
@@ -57,7 +57,27 @@ def parser() -> Parsec[JSON]:
         << closed_square_bracket
     )
 
-    json_parser = true | false | number | null | string | list_
+    opened_bracket = Parsec.from_string("{").ignore()
+    closed_bracket = Parsec.from_string("}").ignore()
+
+    colon = Parsec.from_string(":").ignore()
+
+    pair = string & (
+        space >> colon >> space >> Parsec.from_deferred(lambda: json_parser)
+    )
+
+    dict_ = (
+        opened_bracket
+        >> space
+        >> Parsec.sep_by(
+            space >> comma >> space,
+            pair,
+        ).map(lambda xs: dict(xs))
+        << space
+        << closed_bracket
+    )
+
+    json_parser = true | false | number | null | string | list_ | dict_
 
     return json_parser
 
