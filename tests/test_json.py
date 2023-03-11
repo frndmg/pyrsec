@@ -34,12 +34,12 @@ def parser() -> Parsec[JSON]:
     # Use this if you need to define recursive parsers like `list_`
     deferred_json_ = Parsec.from_deferred(lambda: json_)
 
-    true = Parsec.from_re(re.compile(r"true")).map(lambda _: True)
-    false = Parsec.from_re(re.compile(r"false")).map(lambda _: False)
+    true = Parsec.from_string("true").map(lambda _: True)
+    false = Parsec.from_string("false").map(lambda _: False)
     number = Parsec.from_re(re.compile(r"-?\d+")).map(int)
-    null = Parsec.from_re(re.compile(r"null")).ignore()
+    null = Parsec.from_string("null").map(lambda _: None)
 
-    quote = Parsec.from_re(re.compile('"')).ignore()
+    quote = Parsec.from_string('"').ignore()
     string = quote >> Parsec.from_re(re.compile(r"[^\"]*")) << quote
 
     # Space is always optional on json
