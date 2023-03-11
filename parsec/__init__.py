@@ -5,6 +5,7 @@ from typing import (
     Any,
     Callable,
     Generic,
+    List,
     Protocol,
     Self,
     Tuple,
