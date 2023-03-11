@@ -163,4 +163,4 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
     @staticmethod
     def sep_by(sep: Parsec[Any], p: Parsec[_T]) -> Parsec[List[_T]]:
-        return (p << sep).many() | p.map(lambda x: [x])
+        return (p & (sep >> p).many()).map(lambda x: [x[0], *x[1]]).else_(lambda: [])
