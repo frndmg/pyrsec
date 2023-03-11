@@ -39,7 +39,8 @@ def parser() -> Parsec[JSON]:
     quote = Parsec.from_re(re.compile('"')).ignore()
     string = quote >> Parsec.from_re(re.compile(r"[^\"]*")) << quote
 
-    space = Parsec.from_re(re.compile(r"\s+")).ignore()
+    # Space is always optional on json
+    space = Parsec.from_re(re.compile(r"\s+")).maybe()
     comma = Parsec.from_string(",").ignore()
 
     opened_square_bracket = Parsec.from_string("[")
@@ -47,7 +48,12 @@ def parser() -> Parsec[JSON]:
 
     list_ = (
         opened_square_bracket
-        >> Parsec.from_deferred(lambda: json_parser)
+        >> space
+        >> Parsec.sep_by(
+            space >> comma >> space,
+            Parsec.from_deferred(lambda: json_parser),
+        )
+        << space
         << closed_square_bracket
     )
 
