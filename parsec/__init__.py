@@ -129,3 +129,12 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
     def ignore(self) -> Parsec[None]:
         return self.map(lambda _: None)
 
+    def maybe(self) -> Parsec[_T | None]:
+        def _maybe(s: str) -> tuple[_T | None, str]:
+            r = self(s)
+            if r is None:
+                return None, s
+            return r
+
+        return Parsec.from_func(_maybe)
+
