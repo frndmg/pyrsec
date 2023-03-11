@@ -1,5 +1,6 @@
 import json
 import re
+from typing import ForwardRef, List, Union
 
 import pytest
 from hypothesis import given, strategies
@@ -8,6 +9,14 @@ from parsec import Parsec
 
 JSON = Union[bool, int, None, str, List["JSON"]]  # type: ignore
 
+
+strategies.register_type_strategy(
+    # ForwardRef can not be used here
+    ForwardRef("JSON"),  # type: ignore
+    lambda _: strategies.deferred(lambda: json_strategy),
+)
+
+json_strategy = strategies.from_type(JSON)
 
 
 @pytest.fixture(scope="session")
