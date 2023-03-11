@@ -13,7 +13,7 @@ JSON = bool | int | None | str
 def parser() -> Parsec[JSON]:
     true = Parsec.from_re(re.compile(r"true")).map(lambda _: True)
     false = Parsec.from_re(re.compile(r"false")).map(lambda _: False)
-    number = Parsec.from_re(re.compile(r"\d+")).map(int)
+    number = Parsec.from_re(re.compile(r"-?\d+")).map(int)
     null = Parsec.from_re(re.compile(r"null")).map(lambda _: None)
     quote = Parsec.from_re(re.compile('"')).map(lambda _: None)
     # quote = Parsec.from_func(lambda s: (None, s[1:]) if s[:1] == '"' else None)
