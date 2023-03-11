@@ -29,6 +29,19 @@ _Ts = TypeVarTuple("_Ts")
 
 
 class Parsec(Generic[_T], ParsecBasic[_T]):
+    """Parsec combinator fluid interface and constructors.
+
+    Examples:
+    ```python
+    >>> number = Parsec.from_re(re.compile(r"-?\\d+")).map(int)
+    >>> number("123")
+    (123, '')
+    >>> number("-69")
+    (-69, '')
+
+    ```
+    """
+
     def __init__(self, parser: ParsecBasic[_T]) -> None:
         self.parser = parser
 
@@ -37,15 +50,57 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
     @classmethod
     def from_func(cls, parser: ParsecBasic[_T]) -> Self:
+        """Creates an instance of `Parsec[T]` from a callable.
+
+        Examples:
+        Parser that consumes an string if it starts with `"foo"`
+        ```python
+        >>> literal = lambda x: lambda s: (x, s[len(x):]) if s.startswith(x) else None
+        >>> parser = Parsec.from_func(literal("foo"))
+        >>> parser("foobar")
+        ('foo', 'bar')
+        >>> parser("bar")  # returns None
+
+        ```"""
         return cls(parser)
 
     def __or__(self: Parsec[_T], other: ParsecBasic[_R]) -> Parsec[_T | _R]:
+        """Creates a new `Parsec` instance that operates a disjunction between the two
+        `Parsec` instances provided. In practice it will try to apply one first and if
+        it fails it will try to apply the second.
+
+        Examples:
+        >>> true = Parsec.from_string("True").map(lambda _: True)
+        >>> false = Parsec.from_string("False").map(lambda _: False)
+        >>> parser = true | false
+        >>> parser("True")
+        (True, '')
+        >>> parser("False")
+        (False, '')
+        >>> parser("Trulse")  # Guess what
+
+        """
+
         def _either(s: str) -> tuple[_T | _R, str] | None:
             return self(s) or other(s)
 
         return Parsec.from_func(_either)
 
     def __and__(self: Parsec[_T], other: ParsecBasic[_R]) -> Parsec[Tuple[_T, _R]]:
+        """Creates a new `Parsec` instance that operates a conjunction between the two
+        `Parsec` instances provided. In practice it will apply both parsers and return
+        a the combination of the results as a tuple.
+
+        >>> one = Parsec.from_string("1").map(int)
+        >>> two = Parsec.from_string("2").map(int)
+        >>> three = Parsec.from_string("3").map(int)
+        >>> parser = one & two & three  # The same as (one & two) & three
+        >>> parser("123")
+        (((1, 2), 3), '')
+        >>> parser("321")  # Uff
+
+        """
+
         def _concat(
             s: str,
         ) -> Tuple[Tuple[_T, _R], str] | None:
