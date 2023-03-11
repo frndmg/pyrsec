@@ -4,4 +4,5 @@ pyright
 isort
 pytest
 pytest-xdist
+pytest-cov
 hypothesis
