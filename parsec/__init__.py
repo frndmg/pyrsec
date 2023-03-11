@@ -138,3 +138,21 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
         return Parsec.from_func(_maybe)
 
+    def many(self) -> Parsec[List[_T]]:
+        def _many(s: str) -> tuple[List[_T], str] | None:
+            result: List[_T] = []
+
+            while True:
+                r = self(s)
+                if r is None:
+                    break
+                a, s = r
+                result.append(a)
+
+            return result, s
+
+        return Parsec.from_func(_many)
+
+    @staticmethod
+    def sep_by(sep: Parsec[Any], p: Parsec[_T]) -> Parsec[List[_T]]:
+        return (p << sep).many() | p.map(lambda x: [x])
