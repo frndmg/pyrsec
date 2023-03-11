@@ -5,7 +5,7 @@ import re
 from typing import Dict, ForwardRef, List, Union
 
 import pytest
-from hypothesis import given, strategies
+from hypothesis import example, given, strategies
 
 from parsec import Parsec
 
@@ -77,22 +77,15 @@ def parser() -> Parsec[JSON]:
         << closed_bracket
     )
 
-    json_parser = true | false | number | null | string | list_ | dict_
+    json_parser = (
+        space >> (true | false | number | null | string | list_ | dict_) << space
+    )
 
     return json_parser
 
 
-def test_json_single(parser: Parsec[JSON]) -> None:
-    assert parser("something-weird") is None
-    assert parser("true") == (True, "")
-    assert parser("false") == (False, "")
-    assert parser("123") == (123, "")
-    assert parser("null") == (None, "")
-    assert parser('"some string"') == ("some string", "")
-    assert parser('"some bad string') is None
-    assert parser("true with more") == (True, " with more")
-
-
-@given(value=strategies.from_type(JSON))
-def test_json(parser: Parsec[JSON], value: JSON) -> None:
-    assert parser(json.dumps(value)) == (value, "")
+@given(value=strategies.from_type(JSON).map(json.dumps))
+@example(" [] ")
+@example(" {} ")
+def test_json(parser: Parsec[JSON], value: str) -> None:
+    assert parser(value) == (json.loads(value), "")
