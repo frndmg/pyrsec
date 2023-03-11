@@ -20,7 +20,7 @@ class ParsecBasic(Protocol[T]):
     """ParsecBasic is just the basic callable interface"""
 
     def __call__(self, s: str) -> tuple[T, str] | None:
-        pass
+        raise NotImplementedError
 
 
 _T = TypeVar("_T")
