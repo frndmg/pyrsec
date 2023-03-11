@@ -1,13 +1,15 @@
+import json
 import re
 
 import pytest
+from hypothesis import given, strategies
 
 from parsec import Parsec
 
 JSON = bool | int | None | str
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def parser() -> Parsec[JSON]:
     true = Parsec.from_re(re.compile(r"true")).map(lambda _: True)
     false = Parsec.from_re(re.compile(r"false")).map(lambda _: False)
@@ -28,3 +30,8 @@ def test_json_single(parser: Parsec[JSON]) -> None:
     assert parser('"some string"') == ("some string", "")
     assert parser('"some bad string') is None
     assert parser("true with more") == (True, " with more")
+
+
+@given(value=strategies.from_type(JSON))
+def test_json(parser: Parsec[JSON], value: JSON) -> None:
+    assert parser(json.dumps(value)) == (value, "")
