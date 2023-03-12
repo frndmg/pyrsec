@@ -2,9 +2,12 @@
 requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+py-modules = []
+
 [project]
 name = "pyrsec"
-version = "0.1.0"
+version = "0.1.1"
 description = "Simple parser combinator made in Python"
 readme = "README.md"
 authors = [
@@ -36,3 +39,4 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/frndmg/pyrsec"
+Docs = "https://frndmg.github.io/pyrsec"
