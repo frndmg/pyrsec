@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Generic, List, Protocol, Self, Tuple, TypeVar
+from typing import Any, Callable, Generic, List, Protocol, Tuple, TypeVar
 
 T = TypeVar("T", covariant=True)
 
@@ -42,7 +42,7 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         return self.parser(s)
 
     @classmethod
-    def from_func(cls, parser: ParsecBasic[_T]) -> Self:
+    def from_func(cls, parser: ParsecBasic[_T]):
         """Creates an instance of [`Parsec[T]`][pyrsec.Parsec] from a callable.
 
         Arguments:
