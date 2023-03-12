@@ -2,9 +2,6 @@
 requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-py-modules = []
-
 [project]
 name = "pyrsec"
 version = "0.2.1"
@@ -22,21 +19,43 @@ classifiers = [
 keywords = ["parser-combinator"]
 requires-python = ">=3.8"
 
+[project.urls]
+Homepage = "https://github.com/frndmg/pyrsec"
+Docs = "https://frndmg.github.io/pyrsec"
+
 [project.optional-dependencies]
 dev = [
+    "build",
+    "twine",
+
     "black",
-    "flake8",
-    "pyright",
     "isort",
+    "ruff",
+    "pyright",
+
     "pytest",
     "pytest-cov",
     "pytest-xdist",
     "hypothesis",
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
 ]
+docs = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
 
-[project.urls]
-Homepage = "https://github.com/frndmg/pyrsec"
-Docs = "https://frndmg.github.io/pyrsec"
+[tool.setuptools]
+py-modules = []
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff]
+line-length = 88
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules -vvv --cov pyrsec --cov-report html"
+testpaths = ["tests", "pyrsec"]
+looponfailroots = ["tests", "pyrsec"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = ["raise NotImplementedError"]
