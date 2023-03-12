@@ -1,0 +1,41 @@
+site_name: Pyrsec
+site_author: Fernando Martínez González
+repo_url: https://github.com/frndmg/pyrsec
+
+nav:
+  - Home: index.md
+
+theme:
+  name: material
+
+watch:
+  - pyrsec
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            # show_category_heading: true
+            show_root_toc_entry: false
+            show_root_members_full_path: false
+            members_order: source
+            docstring_section_style: table
+            separate_signature: true
+            show_signature_annotations: true
+            show_bases: false
+            show_source: false
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - pymdownx.superfences
+  # - pymdownx.highlight
+  # - pymdownx.tabbed:
+  #     alternate_style: true
+  # - pymdownx.inlinehilite
+  # - pymdownx.details
+  # - pymdownx.snippets
