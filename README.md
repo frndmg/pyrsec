@@ -50,18 +50,16 @@ comma = Parsec.from_string(",").ignore()
 opened_square_bracket = Parsec.from_string("[")
 closed_square_bracket = Parsec.from_string("]")
 
-# Operator overloading is pretty handy here `|, &, >>, and <<` were overloaded to
+# Operator overloading is very handy here `|, &, >>, and <<` were overloaded to
 # express pretty much what you already expect from them.
 # If you use `a | b` you will get `a or b`.
 # If you use `a & b` you will get `a & b`.
 # If you use `a >> b` it will discard the left side after parsing, and the equivalent
 # for `<<`.
+
 list_ = (
     opened_square_bracket
-    >> Parsec.sep_by(
-        comma,
-        deferred_json_,  # See the use of the recursive json parser?
-    )
+    >> (deferred_json_.sep_by(comma))  # See the use of the recursive json parser?
     << closed_square_bracket
 )
 
@@ -72,12 +70,7 @@ colon = Parsec.from_string(":").ignore()
 pair = ((space >> string << space) << colon) & deferred_json_
 
 dict_ = (
-    opened_bracket
-    >> Parsec.sep_by(
-        comma,
-        pair,
-    ).map(lambda xs: dict(xs))  # With only `dict` the linter goes crazy, idk.
-    << closed_bracket
+    opened_bracket >> pair.sep_by(comma).map(lambda xs: dict(xs)) << closed_bracket
 )
 
 json = space >> (true | false | number | null | string | list_ | dict_) << space

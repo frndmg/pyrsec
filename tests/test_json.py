@@ -50,12 +50,7 @@ def parser() -> Parsec[JSON]:
     closed_square_bracket = Parsec.from_string("]")
 
     list_ = (
-        opened_square_bracket
-        >> Parsec.sep_by(
-            comma,
-            deferred_json_,
-        )
-        << closed_square_bracket
+        opened_square_bracket >> deferred_json_.sep_by(comma) << closed_square_bracket
     )
 
     opened_bracket = Parsec.from_string("{").ignore()
@@ -66,12 +61,7 @@ def parser() -> Parsec[JSON]:
     pair = ((space >> string << space) << colon) & deferred_json_
 
     dict_ = (
-        opened_bracket
-        >> Parsec.sep_by(
-            comma,
-            pair,
-        ).map(lambda xs: dict(xs))
-        << closed_bracket
+        opened_bracket >> pair.sep_by(comma).map(lambda xs: dict(xs)) << closed_bracket
     )
 
     json_ = space >> (true | false | number | null | string | list_ | dict_) << space
