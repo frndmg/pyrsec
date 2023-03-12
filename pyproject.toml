@@ -17,12 +17,12 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 keywords = ["parser-combinator"]
-requires-python = ">=3.11"
+requires-python = ">=3.7"
 
 [project.optional-dependencies]
 dev = [
     "black",
-    "flake8",
+    "flake8 >= 5, < 6",
     "pyright",
     "isort",
     "pytest",
