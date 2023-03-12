@@ -207,6 +207,27 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
     def constant(f: Callable[[], _T]) -> Parsec[_T]:
         return Parsec.from_func(lambda s: (f(), s))
 
-    @staticmethod
-    def sep_by(sep: Parsec[Any], p: Parsec[_T]) -> Parsec[List[_T]]:
-        return (p & (sep >> p).many()).map(lambda x: [x[0], *x[1]]).else_(lambda: [])
+    def sep_by(self: Parsec[_T], sep: Parsec[Any]) -> Parsec[List[_T]]:
+        """Returns a parser that will consume the current parser many times separated by
+        `sep`. If it can't consume anything it will return an empty list.
+
+        Arguments:
+            sep: Separator
+
+        Examples:
+
+        ```python
+        >>> bit = (
+        ...     Parsec.from_string("0") | Parsec.from_string("1")
+        ... ).map(int)
+        >>> bit_array = bit.sep_by(Parsec.from_string(","))
+        >>> bit_array("1,1,0")
+        ([1, 1, 0], '')
+        >>> bit_array("")
+        ([], '')
+
+        ```
+        """
+        return (
+            (self & (sep >> self).many()).map(lambda x: [x[0], *x[1]]).else_(lambda: [])
+        )
