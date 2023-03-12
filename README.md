@@ -13,75 +13,169 @@ a parser combinator, no error recovery is currently in place, only `None` is ret
 case the parser can't continue. I basically started with a minimum implementation while
 adding a basic `json` parser as a test and kept adding functionality as needed.
 
+```bash
+pip install pyrsec
+```
+
 ## A Json parser as an example
 
-See the tests to convince yourself if it will work.
-
-> If you paste this in an editor with type linting support you might be able to hover
-> over the variables to see their types.
+> You should be able to inspect the types of the variables in the following code
 
 ```python
-from pyrsec import Parsec
+>>> from pyrsec import Parsec
 
-# Recursive type alias 👀. See how we will not parse `floats` here.
-JSON = Union[bool, int, None, str, List["JSON"], Dict[str, "JSON"]]
+```
 
-# To be defined later
-json: Parsec[JSON]
+Lets define the type of our json values,
 
-# For recursive parsers like `list_` and `dict_`
-deferred_json_ = Parsec.from_deferred(lambda: json)
+```python
+>>> # Recursive type alias 👀. See how we will not parse `floats` here.
+>>> # Also at this level we can't still reference JSON recursively, idk why.
+>>> JSON = bool | int | None | str | list["JSON"] | dict[str, "JSON"]
 
-# Basic values
-true = Parsec.from_string("true").map(lambda _: True)
-false = Parsec.from_string("false").map(lambda _: False)
-null = Parsec.from_string("null").map(lambda _: None)
-number = Parsec.from_re(re.compile(r"-?\d+")).map(int)
+```
 
-quote = Parsec.from_string('"').ignore()
-string = quote >> Parsec.from_re(re.compile(r"[^\"]*")) << quote
+and the type of our parser. Since this is a parser that will output `JSON` values its
+type will be `Parsec[JSON]`.
 
-# Space is always optional on json, that's way the `*` in the regular expression.
-# Ignore is only to take a `Parsec[_T]` to a `Parsec[None]` by ignoring its consumed
-# value.
-space = Parsec.from_re(re.compile(r"\s*")).ignore()
-comma = Parsec.from_string(",").ignore()
+```python
+>>> # To be defined later
+>>> json_: Parsec[JSON]
+>>> # For recursive parsers like `list_` and `dict_`
+>>> deferred_json_ = Parsec.from_deferred(lambda: json_)
 
-opened_square_bracket = Parsec.from_string("[")
-closed_square_bracket = Parsec.from_string("]")
+```
 
-# Operator overloading is very handy here `|, &, >>, and <<` were overloaded to
-# express pretty much what you already expect from them.
-# If you use `a | b` you will get `a or b`.
-# If you use `a & b` you will get `a & b`.
-# If you use `a >> b` it will discard the left side after parsing, and the equivalent
-# for `<<`.
+Lets bring up a few basic parsers.
 
-list_ = (
-    opened_square_bracket
-    >> (deferred_json_.sep_by(comma))  # See the use of the recursive json parser?
-    << closed_square_bracket
-)
+```python
+>>> import re
+>>> true = Parsec.from_string("true").map(lambda _: True)
+>>> false = Parsec.from_string("false").map(lambda _: False)
+>>> null = Parsec.from_string("null").map(lambda _: None)
+>>> number = Parsec.from_re(re.compile(r"-?\d+")).map(int)
+>>> true("true")
+(True, '')
+>>> false("false")
+(False, '')
+>>> null("null")
+(None, '')
+>>> number("42")
+(42, '')
 
-opened_bracket = Parsec.from_string("{").ignore()
-closed_bracket = Parsec.from_string("}").ignore()
-colon = Parsec.from_string(":").ignore()
+```
 
-pair = ((space >> string << space) << colon) & deferred_json_
+We need to be able to parse character sequences, lets keep it simple.
 
-dict_ = (
-    opened_bracket >> pair.sep_by(comma).map(lambda xs: dict(xs)) << closed_bracket
-)
+The operators `>>` and `<<` are used to discard the part that the arrow is not pointing
+at. They are meant to work well with `Parsec` instances. In this case only the result of
+the middle parser `Parsec.from_re(re.compile(r"[^\"]*"))` is returned from the `string`
+parser.
 
-json = space >> (true | false | number | null | string | list_ | dict_) << space
+If what you want instead is to concatenate the results you should see the `&` operator.
+(wait for the pair definition).
 
-json(
-    """
-{
-    "json_parser": true
-}
-"""
-)  # ({ 'json_parser': True }, '')
+```python
+>>> quote = Parsec.from_string('"').ignore()
+>>> string = quote >> Parsec.from_re(re.compile(r"[^\"]*")) << quote
+>>> string('"foo"')
+('foo', '')
+
+```
+
+See how the quotes got discarded?
+
+Also, missing a quote would mean a parsing error.
+
+```python
+>>> string('foo"'), string('"bar')
+(None, None)
+
+```
+
+Lets get a little bit more serious with the lists.
+
+Spaces are always optional on `json` strings. Other basic tokens are also needed.
+
+```python
+>>> space = Parsec.from_re(re.compile(r"\s*")).ignore()
+>>> comma = Parsec.from_string(",").ignore()
+>>> opened_square_bracket = Parsec.from_string("[").ignore()
+>>> closed_square_bracket = Parsec.from_string("]").ignore()
+
+```
+
+And finally, the `list` parser. We need to use a deferred value here because the
+definition is recursive but the whole `json` parser is still not available.
+
+```python
+>>> list_ = (
+...     opened_square_bracket
+...     >> (deferred_json_.sep_by(comma))  # See here?
+...     << closed_square_bracket
+... )
+
+```
+
+Lets create an incomplete one.
+
+```python
+>>> json_ = space >> (true | false | number | null | string | list_) << space
+
+```
+
+Lets try it then!
+
+```python
+>>> list_("[]")
+([], '')
+>>> list_("[1, true, false, []]")
+([1, True, False, []], '')
+
+```
+
+Defining a dict should be pretty easy by now. Maybe the `pair` parser is interesting
+because its use of `&`.
+
+Some tokens,
+
+```python
+>>> opened_bracket = Parsec.from_string("{").ignore()
+>>> closed_bracket = Parsec.from_string("}").ignore()
+>>> colon = Parsec.from_string(":").ignore()
+
+```
+
+And `pair`, notice that the type of `pair` will be `Parsec[tuple[str, JSON]]`.
+
+```python
+>>> pair = ((space >> string << space) << colon) & deferred_json_
+>>> pair('"foo": [123]')
+(('foo', [123]), '')
+
+```
+
+The `dict` parser will finally be pretty close to the `list` one.
+
+```python
+>>> dict_ = (
+...     opened_bracket
+...     >> pair.sep_by(comma).map(lambda xs: dict(xs))
+...     << closed_bracket
+... )
+
+```
+
+And finally lets redefine the `json` parser to embrace the full beauty of it.
+
+```python
+>>> json_ = space >> (true | false | number | null | string | list_ | dict_) << space
+>>> json_("""
+... {
+...     "json_parser": [true]
+... }
+... """)
+({'json_parser': [True]}, '')
 
 ```
 
