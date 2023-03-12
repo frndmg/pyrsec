@@ -1,1 +1,1 @@
-::: pyrsec
+--8<-- "README.md"
