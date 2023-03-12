@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyrsec"
+version = "0.1.0"
+description = "Simple parser combinator made in Python"
+readme = "README.md"
+authors = [
+    { name = "Fernando Martínez González", email = "frndmartinezglez@gmail.com" },
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["parser-combinator"]
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "pyright",
+    "isort",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "hypothesis",
+]
+
+[project.urls]
+Homepage = "https://github.com/frndmg/pyrsec"
