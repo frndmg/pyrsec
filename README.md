@@ -4,6 +4,7 @@
 
 ![PyPI](https://img.shields.io/pypi/v/pyrsec)
 ![PyPI - License](https://img.shields.io/pypi/l/pyrsec)
+[![codecov](https://codecov.io/gh/frndmg/pyrsec/branch/main/graph/badge.svg?token=ROCVIXSZMO)](https://codecov.io/gh/frndmg/pyrsec)
 
 In the journey of creating a parser combinator in python while being as type safe as
 possible we are here now. I don't recommend you use this for anything important but for
