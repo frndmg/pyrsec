@@ -26,7 +26,7 @@ coverage[toml]==7.2.1
     # via pytest-cov
 execnet==1.9.0
     # via pytest-xdist
-flake8==5.0.4
+flake8==6.0.0
     # via pyrsec (pyproject.toml)
 ghp-import==2.1.0
     # via mkdocs
@@ -93,9 +93,9 @@ platformdirs==3.1.1
     # via black
 pluggy==1.0.0
     # via pytest
-pycodestyle==2.9.1
+pycodestyle==2.10.0
     # via flake8
-pyflakes==2.5.0
+pyflakes==3.0.1
     # via flake8
 pygments==2.14.0
     # via mkdocs-material
