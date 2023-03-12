@@ -29,10 +29,10 @@ pip install pyrsec
 Lets define the type of our json values,
 
 ```python
->>> from __future__ import annotations
+>>> from typing import Union, List, Dict  # because 3.8 and 3.9 🙄
 >>> # Recursive type alias 👀. See how we will not parse `floats` here.
 >>> # Also at this level we can't still reference JSON recursively, idk why.
->>> JSON = bool | int | None | str | list["JSON"] | dict[str, "JSON"]
+>>> JSON = Union[bool, int, None, str, List["JSON"], Dict[str, "JSON"]]
 
 ```
 
