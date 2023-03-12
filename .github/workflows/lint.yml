@@ -22,5 +22,7 @@ jobs:
           make install
       - run: make lint
       - run: make cov
+      - run: make build
+      - run: make build-doc
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
