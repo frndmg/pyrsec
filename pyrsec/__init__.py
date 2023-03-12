@@ -1,3 +1,5 @@
+"""The docs"""
+
 from __future__ import annotations
 
 import re
@@ -20,7 +22,7 @@ _R = TypeVar("_R")
 
 
 class Parsec(Generic[_T], ParsecBasic[_T]):
-    """Parsec combinator fluid interface and constructors.
+    """`Parsec` combinator fluid interface and constructors.
 
     Examples:
     ```python
@@ -41,10 +43,15 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
     @classmethod
     def from_func(cls, parser: ParsecBasic[_T]) -> Self:
-        """Creates an instance of `Parsec[T]` from a callable.
+        """Creates an instance of [`Parsec[T]`][pyrsec.Parsec] from a callable.
+
+        Arguments:
+            parser (ParserBasic[_T]): A callable parser
 
         Examples:
+
         Parser that consumes an string if it starts with `"foo"`
+
         ```python
         >>> literal = lambda x: lambda s: (x, s[len(x):]) if s.startswith(x) else None
         >>> parser = Parsec.from_func(literal("foo"))
@@ -56,11 +63,13 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         return cls(parser)
 
     def __or__(self: Parsec[_T], other: ParsecBasic[_R]) -> Parsec[_T | _R]:
-        """Creates a new `Parsec` instance that operates a disjunction between the two
-        `Parsec` instances provided. In practice it will try to apply one first and if
-        it fails it will try to apply the second.
+        """Creates a new [`Parsec`][pyrsec.Parsec] instance that operates a disjunction
+        between the two [`Parsec`][pyrsec.Parsec] instances provided. In practice it
+        will try to apply one first and if it fails it will try to apply the second.
 
         Examples:
+
+        ```python
         >>> true = Parsec.from_string("True").map(lambda _: True)
         >>> false = Parsec.from_string("False").map(lambda _: False)
         >>> parser = true | false
@@ -69,6 +78,8 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         >>> parser("False")
         (False, '')
         >>> parser("Trulse")  # Guess what
+
+        ```
 
         """
 
@@ -82,6 +93,7 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         `Parsec` instances provided. In practice it will apply both parsers and return
         a the combination of the results as a tuple.
 
+        ```python
         >>> one = Parsec.from_string("1").map(int)
         >>> two = Parsec.from_string("2").map(int)
         >>> three = Parsec.from_string("3").map(int)
@@ -90,6 +102,7 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         (((1, 2), 3), '')
         >>> parser("321")  # Uff
 
+        ```
         """
 
         def _concat(
