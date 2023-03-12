@@ -50,9 +50,7 @@ profile = "black"
 line-length = 88
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules -vvv --cov pyrsec --cov-report html"
-testpaths = ["tests", "pyrsec"]
-looponfailroots = ["tests", "pyrsec"]
+addopts = "--doctest-glob='*.md' --doctest-modules -vvv --cov pyrsec"
 
 [tool.coverage.run]
 branch = true
