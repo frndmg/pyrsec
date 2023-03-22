@@ -123,6 +123,8 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         return Parsec.from_func(_concat)
 
     def map(self, mapping: Callable[[_T], _R]) -> Parsec[_R]:
+        """Creates a new `Parsec` instance that applies the provided mapping function"""
+
         def _map(s: str) -> tuple[_R, str] | None:
             r = self(s)
             if r is None:
@@ -134,6 +136,27 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
     @staticmethod
     def from_re(r: re.Pattern[str]) -> Parsec[str]:
+        """Creates a new `Parsec` instance that consumes a string that matches the
+        provided regular expression.
+
+        Examples:
+        ```python
+        >>> number = Parsec.from_re(re.compile(r"-?\\d+")).map(int)
+        >>> number("123")
+        (123, '')
+        >>> number("-69")
+        (-69, '')
+
+        ```
+
+        Arguments:
+            r: A regular expression pattern
+
+        Returns:
+            A new `Parsec` instance that consumes a string that matches the provided
+            regular expression.
+        """
+
         def _match(s: str) -> tuple[str, str] | None:
             m = r.match(s)
             if m is None:
@@ -151,6 +174,26 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
 
     @staticmethod
     def from_string(x: str) -> Parsec[str]:
+        """Creates a new `Parsec` instance that consumes a string that starts with the
+        provided string.
+
+        Examples:
+        ```python
+        >>> one = Parsec.from_string("1").map(int)
+        >>> one("123")
+        (1, '23')
+        >>> one("321")  # Uff
+
+        ```
+
+        Arguments:
+            x: A string
+
+        Returns:
+            A new `Parsec` instance that consumes a string that starts with the provided
+            string.
+        """
+
         def _match(s: str) -> tuple[str, str] | None:
             if s.startswith(x):
                 return x, s[len(x) :]
@@ -166,6 +209,9 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         return Parsec.from_func(_deferred)
 
     def ignore(self) -> Parsec[None]:
+        """Returns a new `Parsec` instance that will ignore the result of the current
+        instance. It's current implementation is equivalent to
+        `self.map(lambda _: None)`."""
         return self.map(lambda _: None)
 
     def maybe(self) -> Parsec[_T | None]:
@@ -186,6 +232,10 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         return self.else_(lambda: None)
 
     def many(self) -> Parsec[List[_T]]:
+        """Returns a new `Parsec` instance that will consume the current parser many
+        times. If it can't consume anything it will return an empty list.
+        """
+
         def _many(s: str) -> tuple[List[_T], str] | None:
             result: List[_T] = []
 
@@ -201,10 +251,14 @@ class Parsec(Generic[_T], ParsecBasic[_T]):
         return Parsec.from_func(_many)
 
     def else_(self: Parsec[_T], f: Callable[[], _R]) -> Parsec[_T | _R]:
+        """Returns a new `Parsec` instance that will recover in case the current
+        instance fails."""
         return self | Parsec.constant(f)
 
     @staticmethod
     def constant(f: Callable[[], _T]) -> Parsec[_T]:
+        """Returns a new `Parsec` instance that will always return the result of the
+        provided function."""
         return Parsec.from_func(lambda s: (f(), s))
 
     def sep_by(self: Parsec[_T], sep: Parsec[Any]) -> Parsec[List[_T]]:
