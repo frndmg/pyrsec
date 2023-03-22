@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any, Callable, Generic, List, Protocol, Tuple, TypeVar
 
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 
 T = TypeVar("T", covariant=True)
 
