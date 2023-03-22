@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyrsec"
-version = "0.2.3"
+version = "0.2.4"
 description = "Simple parser combinator made in Python"
 readme = "README.md"
 authors = [
